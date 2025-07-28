@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Fórmula do Brownie Lucrativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="docesC.ico" type="image/x-icon">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        #login-view { background: url('https://images.unsplash.com/photo-1568571780422-c8ab97c46522?q=80&w=1974&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; }
+        .login-overlay { background-color: rgba(0,0,0,0.6); }
+        .course-bg { background-color: #f7f2ed; }
+        .text-brown-dark { color: #4a2c2a; }
+        .text-brown-medium { color: #7b4f4f; }
+        .btn-brand { background-color: #c59d5f; transition: all 0.3s ease; }
+        .btn-brand:hover { background-color: #b38e56; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .card { background-color: white; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.07); transition: all 0.3s ease; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        
+        /* Menu Mobile */
+        .mobile-nav {
+            position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 400px;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0,0,0,0.05); border-radius: 9999px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem; z-index: 1000; display: flex;
+        }
+        .nav-link {
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #4b5563;
+            font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.5rem; transition: all 0.3s ease;
+            border-radius: 9999px; flex-grow: 1; text-decoration: none;
+        }
+        .nav-link i { font-size: 1.25rem; margin-bottom: 0.125rem; }
+        .nav-link.active { color: #a16207; background-color: rgba(252, 211, 77, 0.5); }
+        @media (min-width: 768px) { .mobile-nav { display: none; } }
+        
+        .whatsapp-card { background: linear-gradient(135deg, #25D366, #128C7E); color: white; }
+        .btn-completed { background-color: #16a34a !important; color: white !important; }
+
+        /* Barra de Progresso */
+        .progress-bar-bg { background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; height: 0.75rem; }
+        .progress-bar-fill { background: linear-gradient(to right, #f59e0b, #c59d5f); height: 100%; transition: width 0.5s ease; }
+        
+        /* Player de Vídeo */
+        .video-player-container { position: relative; width: 100%; overflow: hidden; padding-top: 56.25%; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .video-player-container iframe { position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body class="pb-24 md:pb-0">
+
+    <div id="login-view" class="h-screen w-screen flex items-center justify-center">
+        <div class="login-overlay absolute top-0 left-0 h-full w-full"></div>
+        <div class="relative z-10 w-full max-w-md p-8 space-y-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl">
+            <div class="text-center">
+                <i class="fas fa-cookie-bite text-5xl text-white"></i>
+                <h2 class="mt-6 text-3xl font-extrabold text-white">A Fórmula do Brownie Lucrativo</h2>
+                <p class="mt-2 text-gray-300">Acesse sua área de aluno</p>
+            </div>
+            <form id="login-form" class="space-y-6">
+                <input id="username" name="username" type="text" required class="w-full px-4 py-3 bg-gray-200/50 text-white placeholder-gray-300 border-2 border-transparent focus:border-amber-400 focus:ring-0 rounded-lg outline-none" placeholder="Seu usuário">
+                <input id="password" name="password" type="password" required class="w-full px-4 py-3 bg-gray-200/50 text-white placeholder-gray-300 border-2 border-transparent focus:border-amber-400 focus:ring-0 rounded-lg outline-none" placeholder="Sua senha">
+                <div id="error-message" class="text-red-400 text-sm text-center hidden"></div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-bold text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="course-view" class="hidden course-bg min-h-screen">
+        <header class="bg-white shadow-md sticky top-0 z-50">
+            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+                 <h1 class="text-xl md:text-2xl font-bold text-brown-dark"><i class="fas fa-cookie-bite mr-2"></i>Fórmula do Brownie</h1>
+                 <button id="logout-button" class="text-sm text-brown-medium hover:text-brown-dark"><i class="fas fa-sign-out-alt mr-1"></i>Sair</button>
+            </div>
+        </header>
+        <main id="app-container" class="container mx-auto p-6 md:p-12"></main>
+         <nav class="mobile-nav">
+            <a onclick="showView('inicio')" class="nav-link"><i class="fas fa-home"></i><span>Início</span></a>
+            <a onclick="showView('aulas')" class="nav-link"><i class="fas fa-graduation-cap"></i><span>Aulas</span></a>
+            <a onclick="showView('progresso')" class="nav-link"><i class="fas fa-chart-line"></i><span>Progresso</span></a>
+            <a onclick="showView('suporte')" class="nav-link"><i class="fab fa-whatsapp"></i><span>Suporte</span></a>
+        </nav>
+    </div>
+
+    <script>
+    // ===============================================
+    // LÓGICA DE LOGIN
+    // ===============================================
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginView = document.getElementById('login-view');
+        const courseView = document.getElementById('course-view');
+        const loginForm = document.getElementById('login-form');
+        const logoutButton = document.getElementById('logout-button');
+        const errorMessage = document.getElementById('error-message');
+
+        const CORRECT_USER = "aluno";
+        const CORRECT_PASS = "brownie123";
+
+        function showCourse() {
+            loginView.style.display = 'none'; courseView.style.display = 'block';
+            initializeCourse(); 
+        }
+
+        function showLogin() {
+            courseView.style.display = 'none'; loginView.style.display = 'flex';
+            localStorage.removeItem('isLoggedIn');
+        }
+
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (loginForm.username.value === CORRECT_USER && loginForm.password.value === CORRECT_PASS) {
+                localStorage.setItem('isLoggedIn', 'true'); showCourse();
+            } else {
+                errorMessage.textContent = 'Usuário ou senha inválidos.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+        logoutButton.addEventListener('click', () => { showLogin(); });
+        if (localStorage.getItem('isLoggedIn') === 'true') { showCourse(); } else { showLogin(); }
+    });
+
+    // ===============================================
+    // SISTEMA DO CURSO
+    // ===============================================
+    let courseData;
+    const appContainer = document.getElementById('app-container');
+    const initialCourseData = [
+        { id: 'ebook', title: 'A Fórmula do Brownie Lucrativo', type: 'pdf', pdfUrl: 'https://www.dropbox.com/scl/fi/c66prsosuezjrrhw809su/Do-Forno-Liberdade.pdf?rlkey=2z4jb2rqwf1l6qoprvba08hdv&st=kk3244mz&dl=1', completed: false },
+        { id: 'modulo1', title: 'A Base Perfeita', lessons: [ 
+            { id: 1, title: '🍫 Receita de Brownie Simples e Delicioso!', videoId: 'nJ3uQK9fuiQ', completed: false }
+        ]},
+        { id: 'modulo2', title: 'Recheios Incríveis', lessons: [ 
+            { id: 1, title: '👉 Recheio de Leite Ninho Cremoso pra Brownie!', videoId: '1jNGa-yZg7w', completed: false }
+        ]},
+        { id: 'modulo3', title: 'Montagem e Vendas', lessons: [ 
+            { id: 1, title: '💡 Como Montar e Embalar Brownies pra Vender', videoId: 'pd-9cOmb0q8', completed: false }
+        ]},
+    ];
+
+    function updateProgress() {
+        courseData.forEach(module => {
+            if (module.type === 'pdf') {
+                module.percentage = module.completed ? 100 : 0;
+            } else {
+                const completedLessons = module.lessons.filter(l => l.completed).length;
+                module.percentage = module.lessons.length > 0 ? Math.round((completedLessons / module.lessons.length) * 100) : 0;
+            }
+        });
+    }
+    
+    function toggleStatus(moduleId, lessonId = null) {
+        const module = courseData.find(m => m.id === moduleId);
+        if (!module) return;
+
+        if (module.type === 'pdf') {
+            module.completed = !module.completed;
+        } else if (lessonId) {
+            const lesson = module.lessons.find(l => l.id === lessonId);
+            if(lesson) lesson.completed = !lesson.completed;
+        }
+        
+        localStorage.setItem('brownieCourseProgress', JSON.stringify(courseData));
+        updateProgress();
+        
+        const currentView = appContainer.children[0]?.id.replace('-view', '');
+        const currentModuleId = appContainer.dataset.moduleId;
+        const currentLessonId = parseInt(appContainer.dataset.lessonId);
+
+        if(currentView === 'video' && currentModuleId && currentLessonId) {
+            showView('video', currentModuleId, currentLessonId);
+        } else {
+            showView(currentView || 'inicio');
+        }
+    }
+    
+    // ===============================================
+    // RENDERIZAÇÃO DAS VIEWS
+    // ===============================================
+    function renderInicioView() {
+        let totalItems = 0; let completedItems = 0;
+        courseData.forEach(m => {
+            if (m.type === 'pdf') { totalItems++; if (m.completed) completedItems++; } 
+            else { totalItems += m.lessons.length; completedItems += m.lessons.filter(l => l.completed).length; }
+        });
+        const overallPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+        
+        return `
+            <section id="inicio-view">
+                <div class="text-center"><h2 class="text-4xl font-extrabold text-brown-dark">Seja Bem-Vindo(a)!</h2><p class="text-brown-medium mt-4 text-lg">Este é o seu painel de controle. Aqui você pode navegar por todo o conteúdo do curso.</p></div>
+                <div class="card mt-8 p-6">
+                    <div class="flex justify-between items-center mb-1"><span class="text-lg font-bold text-brown-dark">Seu Progresso Total</span><span class="text-lg font-bold text-amber-600">${overallPercentage}%</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${overallPercentage}%;"></div></div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                     <a href="javascript:void(0)" onclick="showView('aulas')" class="card text-center p-8 hover:bg-amber-50 no-underline"><i class="fas fa-graduation-cap text-5xl text-amber-600"></i><h3 class="mt-4 text-2xl font-bold text-brown-dark">Aulas e Ebook</h3><p class="mt-2 text-brown-medium">Acesse todo o conteúdo aqui.</p></a>
+                     <a href="javascript:void(0)" onclick="showView('suporte')" class="card text-center p-8 hover:bg-amber-50 no-underline"><i class="fab fa-whatsapp text-5xl text-green-500"></i><h3 class="mt-4 text-2xl font-bold text-brown-dark">Grupo de Suporte</h3><p class="mt-2 text-brown-medium">Tire suas dúvidas e conecte-se.</p></a>
+                </div>
+            </section>`;
+    }
+
+    function renderAulasView() {
+        const ebookModule = courseData.find(m => m.type === 'pdf');
+        const videoModules = courseData.filter(m => m.type !== 'pdf');
+
+        const videoModulesHtml = videoModules.map(module => {
+            const lessonsHtml = module.lessons.map(lesson => `
+                <div class="flex items-center justify-between p-4 border-t border-gray-200">
+                    <div class="flex items-center">
+                        <i class="${lesson.completed ? 'fas fa-check-circle text-green-500' : 'far fa-circle text-gray-400'} text-2xl mr-4"></i>
+                        <span class="font-medium text-brown-medium">${lesson.title}</span>
+                    </div>
+                    <a href="javascript:void(0)" onclick="showView('video', '${module.id}', ${lesson.id})" class="text-sm font-bold text-amber-600 hover:text-amber-700">Assistir</a>
+                </div>
+            `).join('');
+            return `<div class="card overflow-hidden mb-8">
+                        <div class="p-6 bg-gray-50"><h3 class="font-bold text-2xl text-brown-dark">${module.title}</h3></div>
+                        <div>${lessonsHtml}</div>
+                    </div>`;
+        }).join('');
+        
+        return `
+            <section id="aulas-view">
+                <header class="mb-8"><button onclick="showView('inicio')" class="font-semibold text-brown-medium hover:text-brown-dark"><i class="fas fa-arrow-left mr-2"></i>Voltar ao Início</button></header>
+                <div class="mb-16">
+                    <div class="card flex flex-col md:flex-row items-center overflow-hidden">
+                        <img src="capa.jpeg" alt="Capa do Ebook" class="w-full md:w-1/3 h-auto">
+                        <div class="p-8 md:p-12">
+                            <h2 class="text-3xl font-extrabold text-brown-dark">${ebookModule.title}</h2>
+                            <p class="text-brown-medium mt-4 mb-6">O passo a passo detalhado com todas as receitas, segredos e dicas.</p>
+                             <div class="flex items-center space-x-4">
+                                <a href="${ebookModule.pdfUrl}" download="Formula_Brownie_Lucrativo.pdf" class="btn-brand inline-flex items-center text-white font-bold py-3 px-8 rounded-lg text-lg"><i class="fas fa-download mr-3"></i>Baixar PDF</a>
+                                <button onclick="toggleStatus('${ebookModule.id}')" class="flex items-center font-semibold ${ebookModule.completed ? 'text-green-600' : 'text-brown-medium'}">
+                                    <i class="${ebookModule.completed ? 'fas fa-check-circle' : 'far fa-circle'} text-2xl mr-2"></i>
+                                    ${ebookModule.completed ? 'Concluído' : 'Marcar como lido'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div><h2 class="text-3xl font-bold text-center text-brown-dark mb-10">Módulos de Vídeo Aulas</h2>${videoModulesHtml}</div>
+            </section>`;
+    }
+
+    function renderVideoView(moduleId, lessonId) {
+        const module = courseData.find(m => m.id === moduleId);
+        const lesson = module.lessons.find(l => l.id === lessonId);
+
+        // Para navegação
+        const allLessons = courseData.filter(m => m.lessons).flatMap(m => m.lessons.map(l => ({...l, moduleId: m.id})));
+        const currentLessonIndex = allLessons.findIndex(l => l.id === lessonId && l.moduleId === moduleId);
+        const prevLesson = currentLessonIndex > 0 ? allLessons[currentLessonIndex - 1] : null;
+        const nextLesson = currentLessonIndex < allLessons.length - 1 ? allLessons[currentLessonIndex + 1] : null;
+
+        return `
+            <section id="video-view" data-module-id="${moduleId}" data-lesson-id="${lessonId}">
+                <header class="mb-8">
+                    <button onclick="showView('aulas')" class="font-semibold text-brown-medium hover:text-brown-dark"><i class="fas fa-arrow-left mr-2"></i>Voltar para Aulas</button>
+                </header>
+                <div class="video-player-container">
+                    <iframe src="https://www.youtube.com/embed/${lesson.videoId}" title="${lesson.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <h2 class="text-3xl font-bold text-brown-dark mt-6">${lesson.title}</h2>
+                <p class="text-brown-medium">Módulo: ${module.title}</p>
+                
+                <div class="mt-6">
+                    <button onclick="toggleStatus('${moduleId}', ${lessonId})" class="w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 ${lesson.completed ? 'btn-completed' : 'btn-brand text-white'}">
+                        ${lesson.completed ? '<i class="fas fa-check-circle mr-2"></i>Aula Concluída!' : '<i class="far fa-check-circle mr-2"></i>Marcar como Concluída'}
+                    </button>
+                </div>
+
+                <div class="mt-6 grid grid-cols-2 gap-4">
+                    <button onclick="showView('video', '${prevLesson?.moduleId}', ${prevLesson?.id})" class="bg-white p-3 rounded-lg font-semibold text-brown-medium disabled:opacity-50" ${!prevLesson ? 'disabled' : ''}><i class="fas fa-chevron-left mr-2"></i>Anterior</button>
+                    <button onclick="showView('video', '${nextLesson?.moduleId}', ${nextLesson?.id})" class="bg-white p-3 rounded-lg font-semibold text-brown-medium disabled:opacity-50" ${!nextLesson ? 'disabled' : ''}>Próxima<i class="fas fa-chevron-right ml-2"></i></button>
+                </div>
+            </section>
+        `;
+    }
+
+    function renderProgressoView() {
+        let totalItems = 0; let completedItems = 0;
+        courseData.forEach(m => {
+             if (m.type === 'pdf') { totalItems++; if (m.completed) completedItems++; } 
+            else { totalItems += m.lessons.length; completedItems += m.lessons.filter(l => l.completed).length; }
+        });
+        const overallPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+        const moduleProgressHtml = courseData.map(module => `
+            <div class="card p-6">
+                <h3 class="font-bold text-xl text-brown-dark mb-2">${module.title}</h3>
+                <div class="flex justify-between items-center mb-1"><span class="text-sm font-medium text-brown-medium">Progresso</span><span class="text-sm font-bold text-amber-600">${module.percentage}%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${module.percentage}%;"></div></div>
+            </div>`).join('');
+        return `
+            <section id="progresso-view">
+                <header class="mb-8"><button onclick="showView('inicio')" class="font-semibold text-brown-medium hover:text-brown-dark"><i class="fas fa-arrow-left mr-2"></i>Voltar ao Início</button></header>
+                <div class="card p-6 mb-8"><h2 class="text-lg font-bold text-brown-dark">Progresso Geral</h2><div class="flex justify-between items-center mb-1 mt-4"><span class="text-sm font-medium text-brown-medium">Progresso Total</span><span class="text-sm font-bold text-amber-600">${overallPercentage}%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${overallPercentage}%;"></div></div><div class="grid grid-cols-2 gap-4 mt-6 text-center"><div class="bg-gray-100 p-4 rounded-lg"><p class="text-2xl font-bold text-brown-dark">${completedItems}</p><p class="text-xs text-brown-medium">Itens Concluídos</p></div><div class="bg-gray-100 p-4 rounded-lg"><p class="text-2xl font-bold text-brown-dark">${totalItems - completedItems}</p><p class="text-xs text-brown-medium">Itens Pendentes</p></div></div></div>
+                <h2 class="text-3xl font-bold text-center text-brown-dark mb-6">Progresso por Módulo</h2>
+                <div class="space-y-6">${moduleProgressHtml}</div>
+            </section>`;
+    }
+    
+    function renderSuporteView() {
+        return `
+            <section id="suporte-view">
+                 <header class="mb-8"><button onclick="showView('inicio')" class="font-semibold text-brown-medium hover:text-brown-dark"><i class="fas fa-arrow-left mr-2"></i>Voltar ao Início</button></header>
+                 <a href="https://chat.whatsapp.com/JZimaWBstv2GjZzcCmAUWG" target="_blank" class="card whatsapp-card p-8 flex flex-col items-center text-center no-underline">
+                    <i class="fab fa-whatsapp text-7xl"></i><h3 class="font-bold text-3xl mt-6">Grupo VIP de Alunas</h3>
+                    <p class="opacity-90 mt-2 max-w-lg">Clique aqui para entrar no nosso grupo exclusivo no WhatsApp, tirar dúvidas e compartilhar suas criações!</p>
+                </a>
+            </section>`;
+    }
+
+    function showView(viewId, param1, param2) {
+        let viewHtml = '';
+        switch(viewId) {
+            case 'inicio': viewHtml = renderInicioView(); break;
+            case 'aulas': viewHtml = renderAulasView(); break;
+            case 'suporte': viewHtml = renderSuporteView(); break;
+            case 'progresso': viewHtml = renderProgressoView(); break;
+            case 'video': viewHtml = renderVideoView(param1, param2); break;
+            default: viewHtml = renderInicioView();
+        }
+        appContainer.innerHTML = viewHtml;
+
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-link[onclick*="'${viewId}'"]`);
+        if (activeLink) activeLink.classList.add('active');
+        
+        window.scrollTo(0,0);
+    }
+
+    function initializeCourse() {
+        const savedData = localStorage.getItem('brownieCourseProgress');
+        courseData = savedData ? JSON.parse(savedData) : initialCourseData;
+        updateProgress();
+        showView('inicio');
+    }
+    </script>
+</body>
+</html>
