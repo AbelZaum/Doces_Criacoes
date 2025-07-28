@@ -52,6 +52,7 @@
 </head>
 <body class="pb-24 md:pb-0">
 
+    <!-- =========== TELA DE LOGIN =========== -->
     <div id="login-view" class="h-screen w-screen flex items-center justify-center">
         <div class="login-overlay absolute top-0 left-0 h-full w-full"></div>
         <div class="relative z-10 w-full max-w-md p-8 space-y-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl">
@@ -64,11 +65,15 @@
                 <input id="username" name="username" type="text" required class="w-full px-4 py-3 bg-gray-200/50 text-white placeholder-gray-300 border-2 border-transparent focus:border-amber-400 focus:ring-0 rounded-lg outline-none" placeholder="Seu usuário">
                 <input id="password" name="password" type="password" required class="w-full px-4 py-3 bg-gray-200/50 text-white placeholder-gray-300 border-2 border-transparent focus:border-amber-400 focus:ring-0 rounded-lg outline-none" placeholder="Sua senha">
                 <div id="error-message" class="text-red-400 text-sm text-center hidden"></div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-bold text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all">Entrar</button>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-bold text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all">
+                    <span class="login-text">Entrar</span>
+                    <i class="fas fa-spinner fa-spin login-spinner hidden"></i>
+                </button>
             </form>
         </div>
     </div>
 
+    <!-- =========== ÁREA DO CURSO =========== -->
     <div id="course-view" class="hidden course-bg min-h-screen">
         <header class="bg-white shadow-md sticky top-0 z-50">
             <div class="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -87,7 +92,21 @@
 
     <script>
     // ===============================================
-    // LÓGICA DE LOGIN
+    // VARIÁVEIS GLOBAIS E CONFIGURAÇÃO
+    // ===============================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbw7u_r7Hzo7P4ljmyPHDK6E1Fcfyny5sDs1iDfcZQEisOvFfrE0Gv5JNqoijYaZ3gDq/exec";
+    let loggedInUser = null;
+    let courseData;
+    const appContainer = document.getElementById('app-container');
+    const initialCourseData = [
+        { id: 'ebook', title: 'A Fórmula do Brownie Lucrativo', type: 'pdf', pdfUrl: 'https://www.dropbox.com/scl/fi/7l8w4nzf29kd51rrov5s5/A-f-rmula-para-viver-de-Brownies-Milena.pdf?rlkey=4f3g4kd9u0lshzpkvfdzsalo6&st=svjcnlor&dl=0', completed: false },
+        { id: 'modulo1', title: 'A Base Perfeita', lessons: [ { id: 1, title: '🍫 Receita de Brownie Simples e Delicioso!', videoId: 'nJ3uQK9fuiQ', completed: false } ]},
+        { id: 'modulo2', title: 'Recheios Incríveis', lessons: [ { id: 1, title: '👉 Recheio de Leite Ninho Cremoso pra Brownie!', videoId: '1jNGa-yZg7w', completed: false } ]},
+        { id: 'modulo3', title: 'Montagem e Vendas', lessons: [ { id: 1, title: '💡 Como Montar e Embalar Brownies pra Vender', videoId: 'pd-9cOmb0q8', completed: false } ]},
+    ];
+
+    // ===============================================
+    // LÓGICA DE LOGIN E SESSÃO
     // ===============================================
     document.addEventListener('DOMContentLoaded', () => {
         const loginView = document.getElementById('login-view');
@@ -95,52 +114,68 @@
         const loginForm = document.getElementById('login-form');
         const logoutButton = document.getElementById('logout-button');
         const errorMessage = document.getElementById('error-message');
+        const loginButtonText = document.querySelector('.login-text');
+        const loginSpinner = document.querySelector('.login-spinner');
 
-        const CORRECT_USER = "aluno";
-        const CORRECT_PASS = "brownie123";
-
-        function showCourse() {
-            loginView.style.display = 'none'; courseView.style.display = 'block';
-            initializeCourse(); 
+        function showCourse(user, progress) {
+            loggedInUser = user;
+            initializeCourse(progress);
+            loginView.style.display = 'none'; 
+            courseView.style.display = 'block';
         }
 
         function showLogin() {
-            courseView.style.display = 'none'; loginView.style.display = 'flex';
-            localStorage.removeItem('isLoggedIn');
+            loggedInUser = null;
+            sessionStorage.removeItem('loggedInUser');
+            courseView.style.display = 'none'; 
+            loginView.style.display = 'flex';
         }
 
         loginForm.addEventListener('submit', (event) => {
             event.preventDefault();
-            if (loginForm.username.value === CORRECT_USER && loginForm.password.value === CORRECT_PASS) {
-                localStorage.setItem('isLoggedIn', 'true'); showCourse();
-            } else {
-                errorMessage.textContent = 'Usuário ou senha inválidos.';
-                errorMessage.classList.remove('hidden');
-            }
+            loginButtonText.classList.add('hidden');
+            loginSpinner.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+
+            const user = loginForm.username.value;
+            const pass = loginForm.password.value;
+            
+            fetch(`${API_URL}?user=${user}&pass=${pass}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        sessionStorage.setItem('loggedInUser', user);
+                        sessionStorage.setItem('userProgress', data.progress);
+                        showCourse(user, data.progress);
+                    } else {
+                        errorMessage.textContent = data.message;
+                        errorMessage.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    errorMessage.textContent = 'Erro de conexão. Tente novamente.';
+                    errorMessage.classList.remove('hidden');
+                })
+                .finally(() => {
+                    loginButtonText.classList.remove('hidden');
+                    loginSpinner.classList.add('hidden');
+                });
         });
 
-        logoutButton.addEventListener('click', () => { showLogin(); });
-        if (localStorage.getItem('isLoggedIn') === 'true') { showCourse(); } else { showLogin(); }
+        logoutButton.addEventListener('click', showLogin);
+        
+        const sessionUser = sessionStorage.getItem('loggedInUser');
+        if (sessionUser) {
+            const sessionProgress = sessionStorage.getItem('userProgress');
+            showCourse(sessionUser, sessionProgress);
+        } else {
+            showLogin();
+        }
     });
 
     // ===============================================
-    // SISTEMA DO CURSO
+    // LÓGICA DO CURSO (PROGRESSO, ETC)
     // ===============================================
-    let courseData;
-    const appContainer = document.getElementById('app-container');
-    const initialCourseData = [
-        { id: 'ebook', title: 'A Fórmula do Brownie Lucrativo', type: 'pdf', pdfUrl: 'https://www.dropbox.com/scl/fi/7l8w4nzf29kd51rrov5s5/A-f-rmula-para-viver-de-Brownies-Milena.pdf?rlkey=4f3g4kd9u0lshzpkvfdzsalo6&st=uuoxobld&dl=0', completed: false },
-        { id: 'modulo1', title: 'A Base Perfeita', lessons: [ 
-            { id: 1, title: '🍫 Receita de Brownie Simples e Delicioso!', videoId: 'nJ3uQK9fuiQ', completed: false }
-        ]},
-        { id: 'modulo2', title: 'Recheios Incríveis', lessons: [ 
-            { id: 1, title: '👉 Recheio de Leite Ninho Cremoso pra Brownie!', videoId: '1jNGa-yZg7w', completed: false }
-        ]},
-        { id: 'modulo3', title: 'Montagem e Vendas', lessons: [ 
-            { id: 1, title: '💡 Como Montar e Embalar Brownies pra Vender', videoId: 'pd-9cOmb0q8', completed: false }
-        ]},
-    ];
-
     function updateProgress() {
         courseData.forEach(module => {
             if (module.type === 'pdf') {
@@ -152,6 +187,18 @@
         });
     }
     
+    function saveProgress() {
+        const progressString = JSON.stringify(courseData);
+        sessionStorage.setItem('userProgress', progressString); // Salva localmente para agilidade
+        
+        fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Importante para o Google Apps Script
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user: loggedInUser, progress: progressString })
+        });
+    }
+
     function toggleStatus(moduleId, lessonId = null) {
         const module = courseData.find(m => m.id === moduleId);
         if (!module) return;
@@ -163,8 +210,8 @@
             if(lesson) lesson.completed = !lesson.completed;
         }
         
-        localStorage.setItem('brownieCourseProgress', JSON.stringify(courseData));
         updateProgress();
+        saveProgress();
         
         const currentView = appContainer.children[0]?.id.replace('-view', '');
         const currentModuleId = appContainer.dataset.moduleId;
@@ -190,7 +237,7 @@
         
         return `
             <section id="inicio-view">
-                <div class="text-center"><h2 class="text-4xl font-extrabold text-brown-dark">Seja Bem-Vindo(a)!</h2><p class="text-brown-medium mt-4 text-lg">Este é o seu painel de controle. Aqui você pode navegar por todo o conteúdo do curso.</p></div>
+                <div class="text-center"><h2 class="text-4xl font-extrabold text-brown-dark">Seja Bem-Vindo(a), ${loggedInUser}!</h2><p class="text-brown-medium mt-4 text-lg">Este é o seu painel de controle. Aqui você pode navegar por todo o conteúdo do curso.</p></div>
                 <div class="card mt-8 p-6">
                     <div class="flex justify-between items-center mb-1"><span class="text-lg font-bold text-brown-dark">Seu Progresso Total</span><span class="text-lg font-bold text-amber-600">${overallPercentage}%</span></div>
                     <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${overallPercentage}%;"></div></div>
@@ -248,8 +295,6 @@
     function renderVideoView(moduleId, lessonId) {
         const module = courseData.find(m => m.id === moduleId);
         const lesson = module.lessons.find(l => l.id === lessonId);
-
-        // Para navegação
         const allLessons = courseData.filter(m => m.lessons).flatMap(m => m.lessons.map(l => ({...l, moduleId: m.id})));
         const currentLessonIndex = allLessons.findIndex(l => l.id === lessonId && l.moduleId === moduleId);
         const prevLesson = currentLessonIndex > 0 ? allLessons[currentLessonIndex - 1] : null;
@@ -257,27 +302,20 @@
 
         return `
             <section id="video-view" data-module-id="${moduleId}" data-lesson-id="${lessonId}">
-                <header class="mb-8">
-                    <button onclick="showView('aulas')" class="font-semibold text-brown-medium hover:text-brown-dark"><i class="fas fa-arrow-left mr-2"></i>Voltar para Aulas</button>
-                </header>
+                <header class="mb-8"><button onclick="showView('aulas')" class="font-semibold text-brown-medium hover:text-brown-dark"><i class="fas fa-arrow-left mr-2"></i>Voltar para Aulas</button></header>
                 <div class="video-player-container">
                     <iframe src="https://www.youtube.com/embed/${lesson.videoId}" title="${lesson.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
                 <h2 class="text-3xl font-bold text-brown-dark mt-6">${lesson.title}</h2>
                 <p class="text-brown-medium">Módulo: ${module.title}</p>
-                
                 <div class="mt-6">
-                    <button onclick="toggleStatus('${moduleId}', ${lessonId})" class="w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 ${lesson.completed ? 'btn-completed' : 'btn-brand text-white'}">
-                        ${lesson.completed ? '<i class="fas fa-check-circle mr-2"></i>Aula Concluída!' : '<i class="far fa-check-circle mr-2"></i>Marcar como Concluída'}
-                    </button>
+                    <button onclick="toggleStatus('${moduleId}', ${lessonId})" class="w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 ${lesson.completed ? 'btn-completed' : 'btn-brand text-white'}">${lesson.completed ? '<i class="fas fa-check-circle mr-2"></i>Aula Concluída!' : '<i class="far fa-check-circle mr-2"></i>Marcar como Concluída'}</button>
                 </div>
-
                 <div class="mt-6 grid grid-cols-2 gap-4">
                     <button onclick="showView('video', '${prevLesson?.moduleId}', ${prevLesson?.id})" class="bg-white p-3 rounded-lg font-semibold text-brown-medium disabled:opacity-50" ${!prevLesson ? 'disabled' : ''}><i class="fas fa-chevron-left mr-2"></i>Anterior</button>
                     <button onclick="showView('video', '${nextLesson?.moduleId}', ${nextLesson?.id})" class="bg-white p-3 rounded-lg font-semibold text-brown-medium disabled:opacity-50" ${!nextLesson ? 'disabled' : ''}>Próxima<i class="fas fa-chevron-right ml-2"></i></button>
                 </div>
-            </section>
-        `;
+            </section>`;
     }
 
     function renderProgressoView() {
@@ -332,9 +370,12 @@
         window.scrollTo(0,0);
     }
 
-    function initializeCourse() {
-        const savedData = localStorage.getItem('brownieCourseProgress');
-        courseData = savedData ? JSON.parse(savedData) : initialCourseData;
+    function initializeCourse(progressString) {
+        try {
+            courseData = progressString ? JSON.parse(progressString) : initialCourseData;
+        } catch (e) {
+            courseData = initialCourseData;
+        }
         updateProgress();
         showView('inicio');
     }
